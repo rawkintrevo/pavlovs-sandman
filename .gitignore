@@ -1,0 +1,4 @@
+.idea
+recordings/*
+volume_data/*
+*.iml
