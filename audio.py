@@ -1,6 +1,7 @@
 import alsaaudio, wave, numpy, os
 from datetime import datetime, timedelta
 import pandas as pd
+from time import sleep
 
 ## TODO
 # 1. Adaptive to background noise / threshold
@@ -23,6 +24,7 @@ class AudioHandler:
         self.secondsUntilExecuteActionThreshold = 10
         self.lastExecuteActionTime = datetime.now()
         self.minSecondsBetweenExecuteAction = 10
+        self.warmUpMode = True
 
     def dumpData(self, epoch):
         assert isinstance(epoch, datetime)
@@ -44,6 +46,18 @@ class AudioHandler:
         self.volume = list()
 
     def run(self):
+        startTime = datetime.now()
+        print("warming up")
+        while self.warmUpMode:
+            l, data = self.inp.read()
+            vol = numpy.abs(numpy.fromstring(data, dtype='int16')).mean()
+            self.volume.append(vol)
+            if (datetime.now() - startTime).seconds > 10:
+                self.warmUpMode = False
+                self.volumeThreshold = numpy.max(self.volume) + numpy.std(self.volume)
+                print(numpy.mean(self.volume), numpy.std(self.volume), numpy.max(self.volume))
+        self.volume = list()
+        print("warm up complete. threshold is %f" % self.volumeThreshold)
         while True:
             epoch = datetime.now()
             l, data = self.inp.read()
