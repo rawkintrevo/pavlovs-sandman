@@ -45,7 +45,8 @@ class AudioHandler:
         self.rawData = list()
         self.volume = list()
 
-    def run(self):
+    def setThreshold(self):
+        self.volume = list()
         startTime = datetime.now()
         print("warming up")
         while self.warmUpMode:
@@ -58,6 +59,9 @@ class AudioHandler:
                 print(numpy.mean(self.volume), numpy.std(self.volume), numpy.max(self.volume))
         self.volume = list()
         print("warm up complete. threshold is %f" % self.volumeThreshold)
+
+    def run(self):
+        self.setThreshold()
         while True:
             epoch = datetime.now()
             l, data = self.inp.read()
