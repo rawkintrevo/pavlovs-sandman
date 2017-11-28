@@ -55,13 +55,14 @@ class AudioHandler:
             self.volume.append(vol)
             if (datetime.now() - startTime).seconds > 10:
                 self.warmUpMode = False
-                self.volumeThreshold = numpy.max(self.volume) + numpy.std(self.volume)
+                self.volumeThreshold = numpy.mean(self.volume) + numpy.std(self.volume)
                 print(numpy.mean(self.volume), numpy.std(self.volume), numpy.max(self.volume))
         self.volume = list()
         print("warm up complete. threshold is %f" % self.volumeThreshold)
 
     def run(self):
-        self.setThreshold()
+        #self.setThreshold()
+        self.volumeThreshold = 1400
         while True:
             epoch = datetime.now()
             l, data = self.inp.read()
@@ -92,6 +93,3 @@ class AudioHandler:
     def executeAction(self):
         print("~~~~~~~~~~~~~~~~~ Shut up ALready!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-
-snore_detector = AudioHandler()
-snore_detector.run()

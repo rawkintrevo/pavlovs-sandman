@@ -1,4 +1,5 @@
 .idea
-recordings/*
-volume_data/*
+*.csv
+*.wav
 *.iml
+
