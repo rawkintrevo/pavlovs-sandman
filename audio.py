@@ -55,7 +55,7 @@ class AudioHandler:
             self.volume.append(vol)
             if (datetime.now() - startTime).seconds > 10:
                 self.warmUpMode = False
-                self.volumeThreshold = numpy.mean(self.volume) + numpy.std(self.volume)
+                self.volumeThreshold = numpy.mean(self.volume) + 2 * numpy.std(self.volume)
                 print(numpy.mean(self.volume), numpy.std(self.volume), numpy.max(self.volume))
         self.volume = list()
         print("warm up complete. threshold is %f" % self.volumeThreshold)

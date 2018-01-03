@@ -14,6 +14,6 @@ for d in volume_dates:
         mkdirIfNotExists("./volume_data/%s/%s" % (dir, d))
         if not os.path.exists("recordings/%s/%s"  % (dir, d)): continue
         recordings = [f.replace(".wav", "") for f in os.listdir("recordings/%s/%s"  % (dir, d))]
-        targets = list(set(volume_csvs + recordings))
+        targets = list(set(volume_csvs).intersection(set(recordings)))
         for t in targets:
             shutil.copy("../volume_data/%s/%s.csv" % (d, t), "./volume_data/%s/%s/%s.csv" % (dir, d, t))
