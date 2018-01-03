@@ -11,11 +11,11 @@ snore_target_dirs = [("training_data/recordings/snore", "psnore"),
 
 def parseDir(input_dir, output_dir, label):
     for fname in os.listdir(input_dir):
-        parseWavFile(output_dir, label, fname)
+        parseWavFile(output_dir, label, fname, input_dir)
 
 
-def parseWavFile(output_dir, label, fname):
-    f = wave.open('training_data/recordings/mixed/%s' % fname) #'training_data/recordings/snore/1-6-34.wav')
+def parseWavFile(output_dir, label, fname, input_dir):
+    f = wave.open('%s/%s' % (input_dir, fname)) #'training_data/recordings/snore/1-6-34.wav')
     features1 = ["Zero Crossing Rate",
                  "Energy",
                  "Entropy of Energy",
