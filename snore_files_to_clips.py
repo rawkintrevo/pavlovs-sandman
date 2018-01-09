@@ -27,28 +27,49 @@ def parseWavFile(output_dir, label, fname, input_dir):
     features2 =  ["MFCC_%i" % i for i in range(0, 13)]
     features3 =["Chroma Vector_%i" % i for i in range(0,12)]
     features_names = ["%s" %  feature for feature in features1 + features2 + features3 +  ["Chroma Deviation"] ]
-    print('%d channels, %d sampling rate\n' % (f.getnchannels(),
-                                               f.getframerate()))
+
+    print('%s: %d channels, %d sampling rate, %i sample width\n' % (fname,
+                                                                    f.getnchannels(),
+                                                f.getframerate(),
+                                                f.getsampwidth()))
     # Set attributes
     periodsize = int(f.getframerate()) #6ms windows
-    fname_base = "recordings/" +output_dir + '/' + label + "/" + fname + "-"
-    data = f.readframes(periodsize)
+    fname_base = "training_data/recordings/" +output_dir + '/' + label + "/" + fname + "-"
     output = list()
     i = 0
+    possibleSnoreActive = True
+    activeBuffer = []
+    data = f.readframes(periodsize)
+    lastFrame = False
     while data:
         # Read data from stdin
         data = np.abs(np.fromstring(data, dtype='int16'))
         stWin = round(f.getframerate() * 0.06)
-        stats = aF.stFeatureExtraction(data, f.getframerate(), stWin / 4, stWin)
-        myDF = pd.DataFrame(stats.transpose(), columns=features_names)
+        # if not lastFrame:
+        print len(data)
+        if len(data) < 44100:
+            lastFrame = True
+        else:
+            stats = aF.stFeatureExtraction(data, f.getframerate(), stWin / 4, stWin)
+            myDF = pd.DataFrame(stats.transpose(), columns=features_names)
         if ( (myDF['MFCC_1'] > 1.5).any()):
-            w = wave.open(fname_base + "%i.wav" % i, 'w')
-            i += 1
-            w.setnchannels(f.getnchannels)
-            w.setsampwidth(f.getsampwidth)
-            w.setframerate(f.getframerate)
-            w.writeframes(data)
+            print("%i possible snore" % i)
+            possibleSnoreActive = True
+            activeBuffer.append(data)
+        if  possibleSnoreActive and (not ((myDF['MFCC_1'] > 1.5).any()) or lastFrame):
+            output_file_name = fname_base.replace(".wav", "") + "%i.wav" % i
+            print('writing: %s' % output_file_name)
+            w = wave.open(output_file_name, 'w')
+            w.setsampwidth(f.getsampwidth())
+            w.setnchannels(f.getnchannels())
+            w.setframerate(f.getframerate())
+            [w.writeframes(frame) for frame in activeBuffer]
+            activeBuffer = []
+            possibleSnoreActive = False
+        print(len(data))
+
         data = f.readframes(periodsize)
+        i += 1
     return output
 
 
