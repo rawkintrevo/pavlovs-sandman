@@ -94,3 +94,6 @@ for k in clfs:
     cnf_matrix = confusion_matrix(y_test, y_pred)
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     output.append({'clf': k, 'fp' : fp, 'tp': tp, 'tn': tn, 'fn': fn})
+
+from sklearn.externals import joblib
+joblib.dump(clf.best_estimator_, 'svc-1-11-2018.pkl')
