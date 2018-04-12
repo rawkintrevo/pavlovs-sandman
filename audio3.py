@@ -37,7 +37,7 @@ class SWHear(object):
         self.p=pyaudio.PyAudio() # start the PyAudio class
         if startStreaming:
             self.stream_start()
-        self.reset_shock_level_every_n_seconds = 10
+        self.reset_shock_level_every_n_seconds = 15
         self.log_file = "/home/rawkintrevo/gits/pavlovs-sandman/logs/records.csv"
     ### LOWEST LEVEL AUDIO ACCESS
     # pure access to microphone and stream operations
@@ -119,17 +119,20 @@ class SWHear(object):
                 self.dumpData()
                 try:
                     if (datetime.now() - self.lastShock).seconds < self.reset_shock_level_every_n_seconds:
-                        self.shockLevel = max(self.shockLevel + 1, 10)
+                        self.shockLevel = min(self.shockLevel + 1, 10)
                     else:
                         self.shockLevel = 1
                     print("Shock level: %i" % self.shockLevel)
-                    with open(self.log_file, "wa") as f:
+                    with open(self.log_file, "a") as f:
                         # datetime, shock level
-                        f.write("%s,%i\n" % (datetime.now().strftime("%Y-%m-%d - %H:%M:%S"), self.shockLevel) )
+                        f.write("%s,%i,1\n" % (datetime.now().strftime("%Y-%m-%d - %H:%M:%S"), self.shockLevel) )
                     self.sc.tone()
                     self.sc.shock(self.shockLevel)
                 except:
                     print("Error communicating with device")
+                    with open(self.log_file, "a") as f:
+                        # datetime, shock level
+                        f.write("%s,%i,0\n" % (datetime.now().strftime("%Y-%m-%d - %H:%M:%S"), self.shockLevel) )
                 # self.sc.buzz()
                 self.lastShock = datetime.now()
 
