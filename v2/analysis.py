@@ -3,8 +3,8 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-from pyAudioAnalysis3.audioFeatureExtraction import stFeatureExtraction
-from pyAudioAnalysis3 import audioBasicIO
+from pyAudioAnalysis.audioFeatureExtraction import stFeatureExtraction
+from pyAudioAnalysis import audioBasicIO
 
 path = "/home/rawkintrevo/gits/pavlovs-sandman/training_data/recordings/snore/"
 
@@ -67,15 +67,18 @@ def plotStuff(data_orig, data_filtered, fft_orig, fft):
     a.set_ylim([-r, r])
     a.set_xlabel('time [s]')
     a.set_ylabel('sample value [-]')
-    x = np.arange(len(data_orig))/(44100)
+    a.set_ylim(0)
+    x = np.linspace(0, len(data_orig)/44100, len(data_orig))
     plt.plot(x, data_orig),
     plt.plot(x, data_filtered)
     # plt.plot(x, ma)
-    a.axhline(data_mean+ 1.5*data_std, color='k')
+    # a.axhline(data_mean+ 1.5*data_std, color='k')
     b = plt.subplot(212)
     b.set_xscale('log')
     b.set_xlabel('frequency [Hz]')
     b.set_ylabel('|amplitude|')
+
+    b.set_ylim(0, fft.max())
     plt.plot(abs(fft_orig))
     plt.plot(abs(fft))
     print(fileName)
@@ -89,6 +92,10 @@ data_orig, fft_orig = filterFreqs(data)
 data_filtered, fft = filterFreqs(data, lowpass= 1500,
     highpass= 2050)
 
+
+data_filtered, fft = filterFreqs(data, lowpass= 1500,
+                                 highpass= 15000,
+                                 filters=[(2001,7999)])
 
 plotStuff(data_orig, data_filtered, fft_orig, fft)
 
